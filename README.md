@@ -37,7 +37,7 @@ We're working on adding more documentation for this component. Stay tuned by wat
 
 ## Support
 
-If you experience an issue while using this package or have a feature request, please file an issue on the [issue board](https://github.com/nteract/noteook-render/issues/new).
+If you experience an issue while using this package or have a feature request, please file an issue on the [issue board](https://github.com/nteract/notebook-render/issues/new).
 
 ## License
 
