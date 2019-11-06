@@ -1,6 +1,6 @@
 {
   "name": "@markmo/notebook-render",
-  "version": "5.0.4-alpha.2",
+  "version": "5.0.4-alpha.3",
   "description": "Render a notebook using a React Component",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
