@@ -1,6 +1,6 @@
 {
-  "name": "@nteract/notebook-render",
-  "version": "5.0.4-alpha.0",
+  "name": "@markmo/notebook-render",
+  "version": "5.0.4-alpha.6",
   "description": "Render a notebook using a React Component",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -9,15 +9,19 @@
     "prepare": "npm run build",
     "test": "npx jest"
   },
-  "repository": "https://github.com/nteract/nteract/tree/master/packages/notebook-render",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:markmo/notebook-render.git"
+  },
   "publishConfig": {
-    "access": "public"
+    "registry": "https://npm.pkg.github.com/"
   },
   "dependencies": {
     "@nteract/commutable": "^6.0.4-alpha.0",
-    "@nteract/outputs": "^1.0.4-alpha.0",
-    "@nteract/presentational-components": "^2.0.4-alpha.0",
+    "@nteract/display-area": "^5.0.4-alpha.0",
+    "@nteract/presentational-components": "^3.0.11",
     "@nteract/records": "^1.0.4-alpha.0",
+    "@nteract/transforms": "^5.0.4-alpha.0",
     "katex": "^0.10.0-alpha",
     "react-katex": "^2.0.2",
     "react-markdown": "^4.0.0",
@@ -34,7 +38,6 @@
   "author": "Benjamin Abel <dev.abel@laposte.net>",
   "license": "BSD-3-Clause",
   "devDependencies": {
-    "@types/node": "^12.12.20",
     "@types/react": "^16.7.20",
     "@types/react-notification-system": "^0.2.39",
     "@types/styled-components": "^4.1.6",
