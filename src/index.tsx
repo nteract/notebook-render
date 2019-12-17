@@ -3,7 +3,6 @@ import {
   createCodeCell,
   emptyNotebook,
   fromJS,
-  ImmutableCodeCell,
   ImmutableNotebook
 } from "@nteract/commutable";
 import {
@@ -119,26 +118,26 @@ export default class NotebookRender extends React.PureComponent<Props, State> {
       <div className="notebook-render">
         <Cells>
           {cellOrder.map((cellId: string) => {
-            const cell = cellMap.get(cellId);
-            const cellType: string = cell!.get("cell_type");
-            const source = cell!.get("source");
+            const cell = cellMap.get(cellId)!;
+            const cellType: string = cell.get("cell_type", "");
+            const source = cell.get("source", "");
 
-            switch (cellType) {
+            switch (cell.cell_type) {
               case "code":
                 const sourceHidden =
                   allSourceHidden ||
-                  cell!.getIn(["metadata", "inputHidden"]) ||
-                  cell!.getIn(["metadata", "hide_input"]);
+                  cell.getIn(["metadata", "inputHidden"]) ||
+                  cell.getIn(["metadata", "hide_input"]);
 
                 const outputHidden =
-                  (cell as ImmutableCodeCell).get("outputs").size === 0 ||
-                  cell!.getIn(["metadata", "outputHidden"]);
+                  cell.get("outputs").size === 0 ||
+                  cell.getIn(["metadata", "outputHidden"]);
 
                 return (
                   <Cell key={cellId}>
                     <Input hidden={sourceHidden}>
                       <Prompt
-                        counter={(cell as ImmutableCodeCell).get(
+                        counter={cell.get(
                           "execution_count"
                         )}
                       />
@@ -149,17 +148,17 @@ export default class NotebookRender extends React.PureComponent<Props, State> {
                     <Outputs
                       hidden={outputHidden}
                       expanded={
-                        cell!.getIn(["metadata", "outputExpanded"]) || true
+                        cell.getIn(["metadata", "outputExpanded"]) || true
                       }
                     >
-                      {cell!
+                      {cell
                         .get("outputs")
                         .toJS()
                         .map((output: OutputType, index: number) => (
                           <Output output={output} key={index}>
                             <DisplayData>
                               <Media.HTML />
-                              <Media.Image />
+                              <Media.Image metadata={undefined} />
                               <Media.Json />
                               <Media.JavaScript />
                               <Media.LaTeX />
@@ -170,7 +169,7 @@ export default class NotebookRender extends React.PureComponent<Props, State> {
 
                             <ExecuteResult>
                               <Media.HTML />
-                              <Media.Image />
+                              <Media.Image metadata={undefined} />
                               <Media.Json />
                               <Media.JavaScript />
                               <Media.LaTeX />
