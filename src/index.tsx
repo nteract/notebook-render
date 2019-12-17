@@ -192,6 +192,9 @@ export default class NotebookRender extends React.PureComponent<Props, State> {
                   },
                   inlineMath: function inlineMath(node: { value: string }) {
                     return <InlineMath>{node.value}</InlineMath>;
+                  },
+                  element: function remarkElement(node: { tagName: string, children: any }) {
+                    return React.createElement(node.tagName, null, node.children);
                   }
                 } as any;
                 return (
