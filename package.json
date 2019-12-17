@@ -6,6 +6,7 @@
   "types": "lib/index.d.ts",
   "scripts": {
     "build": "tsc -b",
+    "prepare": "npm run build",
     "test": "npx jest"
   },
   "repository": "https://github.com/nteract/nteract/tree/master/packages/notebook-render",
