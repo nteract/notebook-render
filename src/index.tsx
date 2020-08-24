@@ -4,7 +4,7 @@ import {
   createCodeCell,
   emptyNotebook,
   fromJS,
-  ImmutableNotebook
+  ImmutableNotebook,
 } from "@nteract/commutable";
 import { Display } from "@nteract/display-area";
 import {
@@ -15,7 +15,7 @@ import {
   Prompt,
   Source,
   DarkTheme,
-  LightTheme
+  LightTheme,
 } from "@nteract/presentational-components";
 import { displayOrder, transforms, Transforms } from "@nteract/transforms";
 import { BlockMath, InlineMath } from "react-katex";
@@ -31,6 +31,7 @@ interface Props {
   notebook: ImmutableNotebook;
   transforms: Transforms;
   theme: "light" | "dark";
+  showPrompt: Boolean;
 }
 
 interface State {
@@ -62,13 +63,14 @@ export default class NotebookRender extends React.PureComponent<Props, State> {
       createCodeCell().set("source", "# where's the content?")
     ),
     theme: "light",
-    transforms
+    transforms,
+    showPrompt: true,
   };
 
   constructor(props: Props) {
     super(props);
     this.state = {
-      notebook: fromJS(props.notebook)
+      notebook: fromJS(props.notebook),
     };
   }
 
@@ -89,7 +91,7 @@ export default class NotebookRender extends React.PureComponent<Props, State> {
         "metadata",
         "language_info",
         "codemirror_mode",
-        "name"
+        "name",
       ]) ||
       notebook.getIn(["metadata", "language_info", "codemirror_mode"]) ||
       notebook.getIn(["metadata", "language_info", "name"]) ||
@@ -120,11 +122,12 @@ export default class NotebookRender extends React.PureComponent<Props, State> {
                 return (
                   <Cell key={cellId} className="cell">
                     <Input hidden={sourceHidden} className="input-container">
-                      <Prompt className="prompt"
-                        counter={cell.get(
-                          "execution_count"
-                        )}
-                      />
+                      {this.props.showPrompt && (
+                        <Prompt
+                          className="prompt"
+                          counter={cell.get("execution_count")}
+                        />
+                      )}
                       <Source language={language} theme={this.props.theme}>
                         {source}
                       </Source>
@@ -139,7 +142,7 @@ export default class NotebookRender extends React.PureComponent<Props, State> {
                         displayOrder={this.props.displayOrder}
                         outputs={cell.get("outputs").toJS()}
                         transforms={this.props.transforms}
-                        />
+                      />
                     </Outputs>
                   </Cell>
                 );
@@ -153,9 +156,16 @@ export default class NotebookRender extends React.PureComponent<Props, State> {
                   inlineMath: function inlineMath(node: { value: string }) {
                     return <InlineMath>{node.value}</InlineMath>;
                   },
-                  element: function remarkElement(node: { tagName: string, children: any }) {
-                    return React.createElement(node.tagName, null, node.children);
-                  }
+                  element: function remarkElement(node: {
+                    tagName: string;
+                    children: any;
+                  }) {
+                    return React.createElement(
+                      node.tagName,
+                      null,
+                      node.children
+                    );
+                  },
                 } as any;
                 return (
                   <Cell key={cellId} className="cell">
