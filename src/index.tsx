@@ -1,3 +1,4 @@
+import * as React from "react";
 import {
   appendCellToNotebook,
   createCodeCell,
@@ -5,14 +6,7 @@ import {
   fromJS,
   ImmutableNotebook
 } from "@nteract/commutable";
-import {
-  DisplayData,
-  ExecuteResult,
-  KernelOutputError,
-  Media,
-  Output,
-  StreamText
-} from "@nteract/outputs";
+import { Display } from "@nteract/display-area";
 import {
   Cell,
   Cells,
@@ -20,22 +14,22 @@ import {
   Outputs,
   Prompt,
   Source,
-  themes
+  DarkTheme,
+  LightTheme
 } from "@nteract/presentational-components";
-import { OutputType } from "@nteract/records";
-import * as React from "react";
+import { displayOrder, transforms, Transforms } from "@nteract/transforms";
 import { BlockMath, InlineMath } from "react-katex";
 import ReactMarkdown from "react-markdown";
 import katex from "rehype-katex";
 import stringify from "rehype-stringify";
 import math from "remark-math";
 import remark2rehype from "remark-rehype";
-import styled, { createGlobalStyle } from "styled-components";
+import styled from "styled-components";
 
 interface Props {
   displayOrder: string[];
   notebook: ImmutableNotebook;
-  transforms: object;
+  transforms: Transforms;
   theme: "light" | "dark";
 }
 
@@ -60,29 +54,19 @@ const RawCell = styled.pre`
   );
 `;
 
-const Themes = {
-  dark: createGlobalStyle`
-    :root {
-      ${themes.dark}
-    }`,
-  light: createGlobalStyle`
-    :root {
-      ${themes.light}
-    }`
-};
-
 export default class NotebookRender extends React.PureComponent<Props, State> {
   static defaultProps = {
+    displayOrder,
     notebook: appendCellToNotebook(
       emptyNotebook,
       createCodeCell().set("source", "# where's the content?")
     ),
-    theme: "light"
+    theme: "light",
+    transforms
   };
 
   constructor(props: Props) {
     super(props);
-
     this.state = {
       notebook: fromJS(props.notebook)
     };
@@ -134,9 +118,9 @@ export default class NotebookRender extends React.PureComponent<Props, State> {
                   cell.getIn(["metadata", "outputHidden"]);
 
                 return (
-                  <Cell key={cellId}>
-                    <Input hidden={sourceHidden}>
-                      <Prompt
+                  <Cell key={cellId} className="cell">
+                    <Input hidden={sourceHidden} className="input-container">
+                      <Prompt className="prompt"
                         counter={cell.get(
                           "execution_count"
                         )}
@@ -151,39 +135,15 @@ export default class NotebookRender extends React.PureComponent<Props, State> {
                         cell.getIn(["metadata", "outputExpanded"]) || true
                       }
                     >
-                      {cell
-                        .get("outputs")
-                        .toJS()
-                        .map((output: OutputType, index: number) => (
-                          <Output output={output} key={index}>
-                            <DisplayData>
-                              <Media.HTML />
-                              <Media.Image metadata={undefined} />
-                              <Media.Json />
-                              <Media.JavaScript />
-                              <Media.LaTeX />
-                              <Media.Markdown />
-                              <Media.Plain />
-                              <Media.SVG />
-                            </DisplayData>
-
-                            <ExecuteResult>
-                              <Media.HTML />
-                              <Media.Image metadata={undefined} />
-                              <Media.Json />
-                              <Media.JavaScript />
-                              <Media.LaTeX />
-                              <Media.Markdown />
-                              <Media.Plain />
-                              <Media.SVG />
-                            </ExecuteResult>
-                            <KernelOutputError />
-                            <StreamText />
-                          </Output>
-                        ))}
+                      <Display
+                        displayOrder={this.props.displayOrder}
+                        outputs={cell.get("outputs").toJS()}
+                        transforms={this.props.transforms}
+                        />
                     </Outputs>
                   </Cell>
                 );
+
               case "markdown":
                 const remarkPlugins = [math, remark2rehype, katex, stringify];
                 const remarkRenderers = {
@@ -198,8 +158,8 @@ export default class NotebookRender extends React.PureComponent<Props, State> {
                   }
                 } as any;
                 return (
-                  <Cell key={cellId}>
-                    <ContentMargin>
+                  <Cell key={cellId} className="cell">
+                    <ContentMargin className="markdown">
                       <ReactMarkdown
                         escapeHtml={false}
                         source={source}
@@ -209,16 +169,17 @@ export default class NotebookRender extends React.PureComponent<Props, State> {
                     </ContentMargin>
                   </Cell>
                 );
+
               case "raw":
                 return (
-                  <Cell key={cellId}>
-                    <RawCell>{source}</RawCell>
+                  <Cell key={cellId} className="cell">
+                    <RawCell className="raw">{source}</RawCell>
                   </Cell>
                 );
 
               default:
                 return (
-                  <Cell key={cellId}>
+                  <Cell key={cellId} className="cell">
                     <Outputs>
                       <pre>{`Cell Type "${cellType}" is not implemented`}</pre>
                     </Outputs>
@@ -227,7 +188,7 @@ export default class NotebookRender extends React.PureComponent<Props, State> {
             }
           })}
         </Cells>
-        {this.props.theme === "dark" ? <Themes.dark /> : <Themes.light />}
+        {this.props.theme === "dark" ? <DarkTheme /> : <LightTheme />}
       </div>
     );
   }
