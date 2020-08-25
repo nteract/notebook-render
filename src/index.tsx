@@ -142,6 +142,7 @@ export default class NotebookRender extends React.PureComponent<Props, State> {
                         displayOrder={this.props.displayOrder}
                         outputs={cell.get("outputs").toJS()}
                         transforms={this.props.transforms}
+                        expanded={true}
                       />
                     </Outputs>
                   </Cell>

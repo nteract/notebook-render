@@ -1,6 +1,6 @@
 {
-  "name": "@markmo/notebook-render",
-  "version": "5.0.4-alpha.6",
+  "name": "@rafaelquintanilha/notebook-render",
+  "version": "0.0.1",
   "description": "Render a notebook using a React Component",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:markmo/notebook-render.git"
+    "url": "git@github.com:rafaelquintanilha/notebook-render.git"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
@@ -35,7 +35,7 @@
     "immutable": "^4.0.0-rc.12",
     "react": "^16.3.2"
   },
-  "author": "Benjamin Abel <dev.abel@laposte.net>",
+  "author": "Rafael Quintanilha <rgsquintanilha@gmail.com>",
   "license": "BSD-3-Clause",
   "devDependencies": {
     "@types/react": "^16.7.20",
