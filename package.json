@@ -1,6 +1,6 @@
 {
   "name": "@rafaelquintanilha/notebook-render",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Render a notebook using a React Component",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -12,9 +12,6 @@
   "repository": {
     "type": "git",
     "url": "git@github.com:rafaelquintanilha/notebook-render.git"
-  },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
   },
   "dependencies": {
     "@nteract/commutable": "^6.0.4-alpha.0",
