@@ -1,6 +1,6 @@
 {
   "name": "@rafaelquintanilha/notebook-render",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Render a notebook using a React Component",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
