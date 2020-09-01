@@ -19,7 +19,7 @@ import {
 } from "@nteract/presentational-components";
 import { displayOrder, transforms, Transforms } from "@nteract/transforms";
 import { BlockMath, InlineMath } from "react-katex";
-import ReactMarkdown from "react-markdown";
+import ReactMarkdown from "react-markdown/with-html";
 import katex from "rehype-katex";
 import stringify from "rehype-stringify";
 import math from "remark-math";
@@ -156,16 +156,6 @@ export default class NotebookRender extends React.PureComponent<Props, State> {
                   },
                   inlineMath: function inlineMath(node: { value: string }) {
                     return <InlineMath>{node.value}</InlineMath>;
-                  },
-                  element: function remarkElement(node: {
-                    tagName: string;
-                    children: any;
-                  }) {
-                    return React.createElement(
-                      node.tagName,
-                      null,
-                      node.children
-                    );
                   },
                 } as any;
                 return (
