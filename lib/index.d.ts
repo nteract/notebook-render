@@ -7,6 +7,7 @@ interface Props {
     transforms: Transforms;
     theme: "light" | "dark";
     showPrompt: Boolean;
+    sourceClassName: string;
 }
 interface State {
     notebook: ImmutableNotebook;
