@@ -1,3 +1,45 @@
+diff --git a/node_modules/@nteract/presentational-components/lib/components/source.js b/node_modules/@nteract/presentational-components/lib/components/source.js
+index 5c56075..0960620 100644
+--- a/node_modules/@nteract/presentational-components/lib/components/source.js
++++ b/node_modules/@nteract/presentational-components/lib/components/source.js
+@@ -39,7 +39,7 @@ class BareSource extends React.Component {
+             , { 
+                 // NOTE: To get around styled-components & defaultProps not lining up,
+                 // this defaults to "text" for us https://github.com/DefinitelyTyped/DefinitelyTyped/issues/29540
+-                language: this.props.language || "text", className: this.props.className || "input" }, this.props.children));
++                language: this.props.language || "text", className: this.props.className || "input", theme: this.props.theme }, this.props.children));
+         }
+         // Otherwise assume they have their own editor component
+         return React.createElement("div", { className: this.props.className }, this.props.children);
+diff --git a/node_modules/@nteract/presentational-components/lib/syntax-highlighter/index.js b/node_modules/@nteract/presentational-components/lib/syntax-highlighter/index.js
+index 7294d19..4c9c587 100644
+--- a/node_modules/@nteract/presentational-components/lib/syntax-highlighter/index.js
++++ b/node_modules/@nteract/presentational-components/lib/syntax-highlighter/index.js
+@@ -25,13 +25,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
+ const React = __importStar(require("react"));
+ const react_syntax_highlighter_1 = require("react-syntax-highlighter");
+ const vs_1 = __importDefault(require("react-syntax-highlighter/dist/cjs/styles/prism/vs"));
+-const xonokai_1 = __importDefault(require("react-syntax-highlighter/dist/cjs/styles/prism/xonokai"));
+-const customStyle = {
+-    padding: "10px 0px 10px 10px",
+-    margin: "0px",
+-    backgroundColor: "var(--cm-background, #fafafa)",
+-    border: "none"
+-};
++const okaidia_1 = __importDefault(require("react-syntax-highlighter/dist/cjs/styles/prism/okaidia"));
++
+ const Highlighter = (props) => {
+     let language = props.language;
+     if (language === "ipython") {
+@@ -45,7 +40,7 @@ const Highlighter = (props) => {
+         // Strip off the language from the mimetype
+         language = language.slice("text/x-".length);
+     }
+-    return (React.createElement(react_syntax_highlighter_1.Prism, { style: props.theme === "light" ? vs_1.default : xonokai_1.default, language: language, className: props.className, customStyle: customStyle }, props.children));
++    return (React.createElement(react_syntax_highlighter_1.Prism, { style: props.theme === "light" ? vs_1.default : okaidia_1.default, language: language, className: props.className }, props.children));
+ };
+ Highlighter.defaultProps = {
+     theme: "light",
 diff --git a/node_modules/@nteract/presentational-components/src/components/source.tsx b/node_modules/@nteract/presentational-components/src/components/source.tsx
 index f42256c..03c4f84 100644
 --- a/node_modules/@nteract/presentational-components/src/components/source.tsx
@@ -10,3 +52,38 @@ index f42256c..03c4f84 100644
          >
            {this.props.children}
          </Highlighter>
+diff --git a/node_modules/@nteract/presentational-components/src/syntax-highlighter/index.tsx b/node_modules/@nteract/presentational-components/src/syntax-highlighter/index.tsx
+index 5f00385..1fb56cc 100644
+--- a/node_modules/@nteract/presentational-components/src/syntax-highlighter/index.tsx
++++ b/node_modules/@nteract/presentational-components/src/syntax-highlighter/index.tsx
+@@ -1,7 +1,7 @@
+ import * as React from "react";
+ import {Prism as SyntaxHighlighter} from "react-syntax-highlighter";
+ import lightTheme from "react-syntax-highlighter/dist/cjs/styles/prism/vs";
+-import darkTheme from "react-syntax-highlighter/dist/cjs/styles/prism/xonokai";
++import darkTheme from "react-syntax-highlighter/dist/cjs/styles/prism/okaidia";
+ 
+ interface HighlighterProps {
+   language: string;
+@@ -10,13 +10,6 @@ interface HighlighterProps {
+   theme?: "light" | "dark";
+ }
+ 
+-const customStyle = {
+-  padding: "10px 0px 10px 10px",
+-  margin: "0px",
+-  backgroundColor: "var(--cm-background, #fafafa)",
+-  border: "none"
+-};
+-
+ const Highlighter = (props: HighlighterProps) => {
+   let language = props.language;
+   if (language === "ipython") {
+@@ -33,7 +26,6 @@ const Highlighter = (props: HighlighterProps) => {
+       style={props.theme === "light" ? lightTheme : darkTheme}
+       language={language}
+       className={props.className}
+-      customStyle={customStyle}
+     >
+       {props.children}
+     </SyntaxHighlighter>
