@@ -32,6 +32,7 @@ interface Props {
   transforms: Transforms;
   theme: "light" | "dark";
   showPrompt: Boolean;
+  sourceClassName: string;
 }
 
 interface State {
@@ -128,7 +129,11 @@ export default class NotebookRender extends React.PureComponent<Props, State> {
                           counter={cell.get("execution_count")}
                         />
                       )}
-                      <Source language={language} theme={this.props.theme}>
+                      <Source
+                        language={language}
+                        theme={this.props.theme}
+                        className={this.props.sourceClassName}
+                      >
                         {source}
                       </Source>
                     </Input>

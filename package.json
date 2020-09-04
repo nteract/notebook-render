@@ -7,7 +7,8 @@
   "scripts": {
     "build": "tsc -b",
     "prepare": "npm run build",
-    "test": "npx jest"
+    "test": "npx jest",
+    "postinstall": "patch-package"
   },
   "repository": {
     "type": "git",
@@ -16,10 +17,12 @@
   "dependencies": {
     "@nteract/commutable": "^6.0.4-alpha.0",
     "@nteract/display-area": "^5.0.4-alpha.0",
-    "@nteract/presentational-components": "^3.0.11",
+    "@nteract/presentational-components": "^3.4.2",
     "@nteract/records": "^1.0.4-alpha.0",
     "@nteract/transforms": "^5.0.4-alpha.0",
     "katex": "^0.10.0-alpha",
+    "patch-package": "^6.2.2",
+    "postinstall-postinstall": "^2.1.0",
     "react-katex": "^2.0.2",
     "react-markdown": "^4.3.1",
     "rehype-katex": "^1.1.1",

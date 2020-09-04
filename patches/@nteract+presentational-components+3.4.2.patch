@@ -1,0 +1,12 @@
+diff --git a/node_modules/@nteract/presentational-components/src/components/source.tsx b/node_modules/@nteract/presentational-components/src/components/source.tsx
+index f42256c..03c4f84 100644
+--- a/node_modules/@nteract/presentational-components/src/components/source.tsx
++++ b/node_modules/@nteract/presentational-components/src/components/source.tsx
+@@ -30,6 +30,7 @@ class BareSource extends React.Component<SourceProps> {
+           // this defaults to "text" for us https://github.com/DefinitelyTyped/DefinitelyTyped/issues/29540
+           language={this.props.language || "text"}
+           className={this.props.className || "input"}
++          theme={this.props.theme}
+         >
+           {this.props.children}
+         </Highlighter>
