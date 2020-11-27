@@ -25,7 +25,6 @@ import stringify from "rehype-stringify";
 import math from "remark-math";
 import remark2rehype from "remark-rehype";
 import styled from "styled-components";
-import 'katex/dist/katex.min.css';
 
 interface Props {
   displayOrder: string[];
