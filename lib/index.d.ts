@@ -1,7 +1,6 @@
 import * as React from "react";
 import { ImmutableNotebook } from "@nteract/commutable";
 import { Transforms } from "@nteract/transforms";
-import 'katex/dist/katex.min.css';
 interface Props {
     displayOrder: string[];
     notebook: ImmutableNotebook;
