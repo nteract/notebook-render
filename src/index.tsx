@@ -188,7 +188,13 @@ export default class NotebookRender extends React.PureComponent<Props, State> {
                     children: any;
                   }) {
 
-                    if ( node.tagName === "math" ) return node.children
+                    if ( node.tagName === "math" ) {
+                      return node.children;
+                    }
+
+                    if (node.tagName === "img") {
+                      return React.createElement(node.tagName, node.properties);
+                    }
 
                     // Separate properties known to cause bugs and handle them separately
                     let { ariaHidden, style, ...props} = node.properties
