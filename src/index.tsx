@@ -1,19 +1,12 @@
+import * as React from "react";
 import {
   appendCellToNotebook,
   createCodeCell,
   emptyNotebook,
   fromJS,
-  ImmutableCodeCell,
-  ImmutableNotebook
+  ImmutableNotebook,
 } from "@nteract/commutable";
-import {
-  DisplayData,
-  ExecuteResult,
-  KernelOutputError,
-  Media,
-  Output,
-  StreamText
-} from "@nteract/outputs";
+import { Display } from "@nteract/display-area";
 import {
   Cell,
   Cells,
@@ -21,23 +14,25 @@ import {
   Outputs,
   Prompt,
   Source,
-  themes
+  DarkTheme,
+  LightTheme,
 } from "@nteract/presentational-components";
-import { OutputType } from "@nteract/records";
-import * as React from "react";
+import { displayOrder, transforms, Transforms } from "@nteract/transforms";
 import { BlockMath, InlineMath } from "react-katex";
-import ReactMarkdown from "react-markdown";
+import ReactMarkdown from "react-markdown/with-html";
 import katex from "rehype-katex";
 import stringify from "rehype-stringify";
 import math from "remark-math";
 import remark2rehype from "remark-rehype";
-import styled, { createGlobalStyle } from "styled-components";
+import styled from "styled-components";
 
 interface Props {
   displayOrder: string[];
   notebook: ImmutableNotebook;
-  transforms: object;
+  transforms: Transforms;
   theme: "light" | "dark";
+  showPrompt: Boolean;
+  sourceClassName: string;
 }
 
 interface State {
@@ -61,31 +56,42 @@ const RawCell = styled.pre`
   );
 `;
 
-const Themes = {
-  dark: createGlobalStyle`
-    :root {
-      ${themes.dark}
-    }`,
-  light: createGlobalStyle`
-    :root {
-      ${themes.light}
-    }`
-};
+// Converts style in string to JSON object
+const toObj = (input: string) => {
+  let value = input
+  if ( value[value.length - 1] === ";") {
+    value = value.substr(0, value.length -1)
+  }
+  const result = {} as any
+  const attr = value.split(";")
+  for ( let i = 0; i < attr.length; i++ ) {
+    const entry = attr[i].split(":")
+    let key = entry.splice(0, 1)[0]
+    key = key.split("-").map((el, i) => {
+      if ( i === 0 ) return el
+      return el.charAt(0).toUpperCase() + el.slice(1)
+    }).join("")    
+    result[key] = entry.join(":").trim()
+  }
+  return result
+}
 
 export default class NotebookRender extends React.PureComponent<Props, State> {
   static defaultProps = {
+    displayOrder,
     notebook: appendCellToNotebook(
       emptyNotebook,
       createCodeCell().set("source", "# where's the content?")
     ),
-    theme: "light"
+    theme: "light",
+    transforms,
+    showPrompt: true,
   };
 
   constructor(props: Props) {
     super(props);
-
     this.state = {
-      notebook: fromJS(props.notebook)
+      notebook: fromJS(props.notebook),
     };
   }
 
@@ -106,7 +112,7 @@ export default class NotebookRender extends React.PureComponent<Props, State> {
         "metadata",
         "language_info",
         "codemirror_mode",
-        "name"
+        "name",
       ]) ||
       notebook.getIn(["metadata", "language_info", "codemirror_mode"]) ||
       notebook.getIn(["metadata", "language_info", "name"]) ||
@@ -119,72 +125,54 @@ export default class NotebookRender extends React.PureComponent<Props, State> {
       <div className="notebook-render">
         <Cells>
           {cellOrder.map((cellId: string) => {
-            const cell = cellMap.get(cellId);
-            const cellType: string = cell!.get("cell_type");
-            const source = cell!.get("source");
+            const cell = cellMap.get(cellId)!;
+            const cellType: string = cell.get("cell_type", "");
+            const source = cell.get("source", "");
 
-            switch (cellType) {
+            switch (cell.cell_type) {
               case "code":
                 const sourceHidden =
                   allSourceHidden ||
-                  cell!.getIn(["metadata", "inputHidden"]) ||
-                  cell!.getIn(["metadata", "hide_input"]);
+                  cell.getIn(["metadata", "inputHidden"]) ||
+                  cell.getIn(["metadata", "hide_input"]);
 
                 const outputHidden =
-                  (cell as ImmutableCodeCell).get("outputs").size === 0 ||
-                  cell!.getIn(["metadata", "outputHidden"]);
+                  cell.get("outputs").size === 0 ||
+                  cell.getIn(["metadata", "outputHidden"]);
 
                 return (
-                  <Cell key={cellId}>
-                    <Input hidden={sourceHidden}>
-                      <Prompt
-                        counter={(cell as ImmutableCodeCell).get(
-                          "execution_count"
-                        )}
-                      />
-                      <Source language={language} theme={this.props.theme}>
+                  <Cell key={cellId} className="cell">
+                    <Input hidden={sourceHidden} className="input-container">
+                      {this.props.showPrompt && (
+                        <Prompt
+                          className="prompt"
+                          counter={cell.get("execution_count")}
+                        />
+                      )}
+                      <Source
+                        language={language}
+                        theme={this.props.theme}
+                        className={this.props.sourceClassName}
+                      >
                         {source}
                       </Source>
                     </Input>
                     <Outputs
                       hidden={outputHidden}
                       expanded={
-                        cell!.getIn(["metadata", "outputExpanded"]) || true
+                        cell.getIn(["metadata", "outputExpanded"]) || true
                       }
                     >
-                      {cell!
-                        .get("outputs")
-                        .toJS()
-                        .map((output: OutputType, index: number) => (
-                          <Output output={output} key={index}>
-                            <DisplayData>
-                              <Media.HTML />
-                              <Media.Image />
-                              <Media.Json />
-                              <Media.JavaScript />
-                              <Media.LaTeX />
-                              <Media.Markdown />
-                              <Media.Plain />
-                              <Media.SVG />
-                            </DisplayData>
-
-                            <ExecuteResult>
-                              <Media.HTML />
-                              <Media.Image />
-                              <Media.Json />
-                              <Media.JavaScript />
-                              <Media.LaTeX />
-                              <Media.Markdown />
-                              <Media.Plain />
-                              <Media.SVG />
-                            </ExecuteResult>
-                            <KernelOutputError />
-                            <StreamText />
-                          </Output>
-                        ))}
+                      <Display
+                        displayOrder={this.props.displayOrder}
+                        outputs={cell.get("outputs").toJS()}
+                        transforms={this.props.transforms}
+                        expanded={true}
+                      />
                     </Outputs>
                   </Cell>
                 );
+
               case "markdown":
                 const remarkPlugins = [math, remark2rehype, katex, stringify];
                 const remarkRenderers = {
@@ -193,11 +181,51 @@ export default class NotebookRender extends React.PureComponent<Props, State> {
                   },
                   inlineMath: function inlineMath(node: { value: string }) {
                     return <InlineMath>{node.value}</InlineMath>;
-                  }
+                  },
+                  element: function remarkElement(node: {
+                    tagName: string;
+                    properties: any;
+                    children: any;
+                  }) {
+
+                    if ( node.tagName === "math" ) {
+                      return node.children;
+                    }
+
+                    if (node.tagName === "img") {
+                      return React.createElement(node.tagName, node.properties);
+                    }
+
+                    if (node.tagName === "br") {
+                      return React.createElement(node.tagName, node.properties);
+                    }
+
+                    // Separate properties known to cause bugs and handle them separately
+                    let { ariaHidden, style, ...props} = node.properties
+
+                    // aria-hidden should be in the normal format
+                    if ( ariaHidden ) {
+                      props["aria-hidden"] = ariaHidden
+                    }
+
+                    // Style must be an object
+                    if ( typeof style === "string" ) {
+                      props["style"] = toObj(style)
+                    }
+                    else if ( typeof style === "object" ) {
+                      props["style"] = style
+                    } 
+
+                    return React.createElement(
+                      node.tagName,
+                      props,
+                      node.children
+                    );
+                  },
                 } as any;
                 return (
-                  <Cell key={cellId}>
-                    <ContentMargin>
+                  <Cell key={cellId} className="cell">
+                    <ContentMargin className="markdown">
                       <ReactMarkdown
                         escapeHtml={false}
                         source={source}
@@ -207,16 +235,17 @@ export default class NotebookRender extends React.PureComponent<Props, State> {
                     </ContentMargin>
                   </Cell>
                 );
+
               case "raw":
                 return (
-                  <Cell key={cellId}>
-                    <RawCell>{source}</RawCell>
+                  <Cell key={cellId} className="cell">
+                    <RawCell className="raw">{source}</RawCell>
                   </Cell>
                 );
 
               default:
                 return (
-                  <Cell key={cellId}>
+                  <Cell key={cellId} className="cell">
                     <Outputs>
                       <pre>{`Cell Type "${cellType}" is not implemented`}</pre>
                     </Outputs>
@@ -225,7 +254,7 @@ export default class NotebookRender extends React.PureComponent<Props, State> {
             }
           })}
         </Cells>
-        {this.props.theme === "dark" ? <Themes.dark /> : <Themes.light />}
+        {this.props.theme === "dark" ? <DarkTheme /> : <LightTheme />}
       </div>
     );
   }
